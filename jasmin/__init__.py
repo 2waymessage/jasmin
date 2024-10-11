@@ -29,6 +29,6 @@ RUNNING_KUBERNETES = False
 PRIMARY_POD = False
 if 'KUBERNETES_SERVICE_HOST' in os.environ:
     RUNNING_KUBERNETES = True
-    _r = re.search(r"^([a-z0-9A-Z].+)\-(\d+)$", HOSTNAME)
-    if len(_r.groups()) == 2 and int(_r.group(2)) == 0:
+    _r = re.search(r"^([a-z0-9A-Z\-]+)\-(\d+)$", HOSTNAME)
+    if _r and len(_r.groups()) == 2 and int(_r.group(2)) == 0:
         PRIMARY_POD = True

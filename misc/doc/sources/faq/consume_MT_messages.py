@@ -15,11 +15,13 @@ def gotConnection(conn, username, password):
     print("Connected to broker.")
     yield conn.authenticate(username, password)
 
-    print("Authenticated. Ready to receive messages")
+    print("Authenticated. Ready to receive messages %s", conn)
     chan = yield conn.channel(1)
     yield chan.channel_open()
 
-    yield chan.queue_declare(queue="someQueueName")
+    yield chan.queue_declare(queue="someQueueName",
+                             durable=True
+                             )
 
     # Bind to submit.sm.* and submit.sm.resp.* routes
     yield chan.queue_bind(queue="someQueueName", exchange="messaging", routing_key='submit.sm.*')
@@ -36,10 +38,10 @@ def gotConnection(conn, username, password):
         pdu = pickle.loads(msg.content.body)
 
     	if msg.routing_key[:15] == 'submit.sm.resp.':
-    		print('SubmitSMResp: status: %s, msgid: %s' % (pdu.status,)
+    		print('SubmitSMResp: status: %s, msgid: %s' % (pdu.status)
     			props['message-id'])
         elif msg.routing_key[:10] == 'submit.sm.':
-        	print('SubmitSM: from %s to %s, content: %s, msgid: %s' % (pdu.params['source_addr'],)
+        	print('SubmitSM: from %s to %s, content: %s, msgid: %s' % (pdu.params['source_addr'])
         		pdu.params['destination_addr'],
         		pdu.params['short_message'],
         		props['message-id'])

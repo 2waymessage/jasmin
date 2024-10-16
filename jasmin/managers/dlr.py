@@ -67,7 +67,9 @@ class DLRLookup:
         queueName = 'DLRLookup-%s' % self.pid  # A local queue to this object
         routing_key = 'dlr.*'
         yield self.amqpBroker.chan.exchange_declare(exchange='messaging', type='topic')
-        yield self.amqpBroker.named_queue_declare(queue=queueName)
+        yield self.amqpBroker.named_queue_declare(queue=queueName,
+                                                  durable=True
+                                                  )
         yield self.amqpBroker.chan.queue_bind(queue=queueName, exchange="messaging", routing_key=routing_key)
         yield self.amqpBroker.chan.basic_consume(queue=queueName, no_ack=False, consumer_tag=consumerTag)
         self.amqpBroker.client.queue(consumerTag).addCallback(self.setup_callbacks)
@@ -125,7 +127,7 @@ class DLRLookup:
         if requeue == 0 and message.content.properties['message-id'] in self.lookup_retrials:
             # Remove retrial tracker
             del self.lookup_retrials[message.content.properties['message-id']]
-        
+
         self.clearRequeueTimer(message.content.properties['message-id'])
         if not self.amqpBroker.connected:
             self.log.error("Cannot reject message, AMQP Broker is not connected !")
@@ -139,7 +141,7 @@ class DLRLookup:
         if message.content.properties['message-id'] in self.lookup_retrials:
             # Remove retrial tracker
             del self.lookup_retrials[message.content.properties['message-id']]
-        
+
         self.clearRequeueTimer(message.content.properties['message-id'])
         if not self.amqpBroker.connected:
             self.log.error("Cannot ack message, AMQP Broker is not connected !")
@@ -359,10 +361,10 @@ class DLRLookup:
                 raise DLRMapNotFound('Got a DLR for an unknown message id: %s (coded:%s)' % (pdu_dlr_id, msgid))
             if len(dlr) > 0 and dlr['sc'] != connector_type:
                 raise DLRMapError('Found a dlr for msgid:%s with diffrent sc: %s' % (submit_sm_queue_id, dlr['sc']))
-            
+
             success_states = ['ACCEPTD', 'DELIVRD']
             final_states = ['DELIVRD', 'EXPIRED', 'DELETED', 'UNDELIV', 'REJECTD']
-            
+
             if connector_type == 'httpapi':
                 self.log.debug('There is a HTTP DLR request for msgid[%s] ...', msgid)
                 dlr_url = dlr['url']

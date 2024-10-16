@@ -144,7 +144,10 @@ def gotConnection(conn, username, password):
     chan = yield conn.channel(1)
     yield chan.channel_open()
 
-    yield chan.queue_declare(queue="sms_logger_queue")
+    yield chan.queue_declare(queue="sms_logger_queue",
+                             arguments={'x-queue-type': 'quorum'},
+                             durable=True
+                             )
 
     # Bind to submit.sm.* and submit.sm.resp.* routes to track sent messages
     yield chan.queue_bind(queue="sms_logger_queue", exchange="messaging", routing_key='submit.sm.*')

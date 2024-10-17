@@ -2,6 +2,7 @@ import binascii
 import pickle
 import sys
 import logging
+import os
 from logging.handlers import TimedRotatingFileHandler
 
 from twisted.application.service import Service
@@ -509,7 +510,7 @@ class DLRThrower(Thrower):
     def __init__(self, config):
         self.log_category = "jasmin-dlr-thrower"
         self.exchangeName = 'messaging'
-        self.consumerTag = 'DLRThrower'
+        self.consumerTag = 'DLRThrower-%s' % os.uname().nodename
         self.routingKey = 'dlr_thrower.*'
         self.queueName = 'dlr_thrower'
         self.callback = self.dlr_throwing_callback

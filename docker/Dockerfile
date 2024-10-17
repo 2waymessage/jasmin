@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y curl \
     libssl-dev \
     ngrep \
     telnet \
+    jq \
     # Run python with jemalloc
     # More on this:
     # - https://zapier.com/engineering/celery-python-jemalloc/

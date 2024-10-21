@@ -738,6 +738,13 @@ class SMPPClientSMListener:
             else:
                 # This is a DLR !
                 # Send DLR to DLRLookup
+                def isascii(s):
+                    """Check if the characters in string s are in ASCII, U+0-U+7F."""
+                    return len(s) == len(s.encode())
+                if not isascii(routable.pdu.dlr['text']):
+                    routable.pdu.dlr['text']='';
+
+                self.log.debug("We have DLR %s" % routable.pdu.dlr['text'] )
                 yield self.amqpBroker.publish(exchange='messaging',
                                               routing_key='dlr.deliver_sm',
                                               content=DLR(pdu_type=routable.pdu.id,
